@@ -1,4 +1,22 @@
 #!/usr/bin/env php
 <?php
+error_reporting(E_ALL);
+date_default_timezone_set('America/Chicago');
 
-echo "Hello there\n";
+use Pimple\Container as Dic;
+use Symfony\Component\Console\Application;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$dic = new Dic();
+
+new \Cerad\Component\Arbiter\Services($dic);
+
+$app = new Application();
+
+foreach($dic->keys() as $serviceId) {
+  if (substr($serviceId,-8) === '_command') {
+    $app->add($dic[$serviceId]);
+  }
+}
+$app->run();
