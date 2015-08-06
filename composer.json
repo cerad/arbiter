@@ -1,0 +1,25 @@
+{
+  "name": "zayso/arbiter",
+  "license": "MIT",
+  "type": "project",
+  "description": "Arbiter Utilities",
+  "autoload": {
+    "psr-4": {
+      "": "src/",
+      "Cerad\\Component\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=5.5.9",
+    "symfony/yaml":       "^2.7",
+    "symfony/console":    "^2.7",
+    "doctrine/dbal":      "^2.5",
+    "phpoffice/phpexcel": "^1.8"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.7"
+  },
+  "config": {
+    "bin-dir": "bin"
+  }
+}
