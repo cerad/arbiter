@@ -9,15 +9,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use Symfony\Component\Yaml\Yaml;
 
+use Zend\Diactoros\Stream;
+use Zend\Diactoros\Response;
+
 class AvailCommand extends Command
 {
   protected $loader;
+  protected $reporter;
 
-  public function __construct(AvailLoaderExcel $loader)
+  public function __construct(AvailLoaderExcel $loader, AvailReporterExcel $reporter)
   {
     parent::__construct();
 
-    $this->loader = $loader;
+    $this->loader   = $loader;
+    $this->reporter = $reporter;
+
   }
   protected function configure()
   {
@@ -40,11 +46,30 @@ class AvailCommand extends Command
     ];
     file_put_contents($filename . '.yml',Yaml::dump($data,10));
 
+    echo sprintf("Loaded Dates %s, Officials %d\n",count($loaderResults->dates),count($loaderResults->officials));
+
+    $reporter = $this->reporter;
+
+    $reporter->report($loaderResults->dates,$loaderResults->officials);
+
+    $out = $filename . '.' . $reporter->getFileExtension();
+    $reporter->save($out);
+
+    $response = new Response($out,200,[]);
     return;
 
-    print_r($loaderResults->dates);
-    foreach($loaderResults->officials as $official) {
-      print_r($official); die();
-    }
+    $stream = new Stream($out);
+    return;
+
+    $fp = fopen('php://temp','r+');
+    fputs($fp,$reporter->getContents());
+    rewind($fp);
+
+
+    $stream = new Stream($fp);
+    file_put_contents($filename . '.xlsx', $stream->getContents());
+
+    return;
+    file_put_contents($filename . '.xlsx', $reporter->getContents());
   }
 }

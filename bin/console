@@ -8,15 +8,26 @@ use Symfony\Component\Console\Application;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$dic = new Dic();
+class App extends Application
+{
+  private $dic;
 
-new \Cerad\Component\Arbiter\Services($dic);
+  public function getDefaultCommands()
+  {
+    $commands = parent::getDefaultCommands();
 
-$app = new Application();
+    $this->dic = $dic = new Dic();
 
-foreach($dic->keys() as $serviceId) {
-  if (substr($serviceId,-8) === '_command') {
-    $app->add($dic[$serviceId]);
+    new \Cerad\Component\Arbiter\Services($dic);
+
+    foreach($dic->keys() as $serviceId) {
+      if (substr($serviceId,-8) === '_command') {
+        $commands[] = $dic[$serviceId];
+      }
+    }
+    return $commands;
   }
 }
+$app = new App();
+
 $app->run();

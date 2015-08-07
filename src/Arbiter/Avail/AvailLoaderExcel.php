@@ -23,8 +23,8 @@ class AvailLoaderExcel
     if (($row[0] === 'Official' && $row[1] == 'Rank')) {
       return;
     }
-    $colName = trim($row[0]);
-    $colRank = trim($row[1]);
+    $colName  = trim($row[0]);
+    $colRank  = trim($row[1]);
     $colAvail = trim($row[7]);
 
     if (substr($colAvail,0,12) == 'Open All Day') {
@@ -36,11 +36,9 @@ class AvailLoaderExcel
     // Date change
     if (strpos($colName,'Referee Availability for') !== false) {
       $this->addOfficial();
-      $pos = strrchr($colName,' ');
-      $date = substr($colName,$pos * -1);
-      $parts = explode('/',$date);
-      $date = sprintf('%04d-%02d-%02d',$parts[2],$parts[0],$parts[1]);
-      $this->date = $results->dates[] = $date;
+      $date = trim(strrchr($colName,' '));
+      $dt = \DateTime::createFromFormat('m/d/Y',$date);
+      $this->date = $results->dates[] = $dt->format('Y-m-d');
       return;
     }
 
@@ -52,8 +50,8 @@ class AvailLoaderExcel
         'name' => $colName,
         'rank' => $colRank,
         'city' => $row[ 4],
-        'home' => $row[10],
-        'cell' => $row[12],
+        'cell' => $row[10],
+        'home' => $row[12],
         'avail'=> [],
       ];
       $this->official['avail'][$this->date][] = $colAvail;
@@ -98,18 +96,41 @@ class AvailLoaderExcel
     $results = new AvailLoaderResults();
     $results->filename = $filename;
 
-    $reader = new \PHPExcel_Reader_Excel5();
+    // Tosses exception
+    $reader = \PHPExcel_IOFactory::createReaderForFile($filename);
     $reader->setReadDataOnly(true);
-    if (!$reader->canRead($filename)) {
-      $results->errors[] = 'Could not open file for reading';
-      return $results;
+
+    $wb = $reader->load($filename);
+    $ws = $wb->getSheet(0);
+
+    /*
+    foreach($ws->getRowIterator() as $row) {
+      $cells = $row->getCellIterator();
+      $cells->setIterateOnlyExistingCells(false);
+      $data = [];
+      foreach($cells as $cell) {
+        $data[] = $cell->getValue();
+      }
+      $this->processRow($results,$data);
     }
-    $excel = $reader->load($filename);
-    $ws    = $excel->getSheet(0);
-    $rows  = $ws->toArray();
+    */
+    $rowMax = $ws->getHighestRow();
+    $colMax = $ws->getHighestColumn(); // Letter
+  //echo sprintf("WS rows %d, cols %s\n",$rowMax,$colMax);
+
+    for($row = 1; $row < $rowMax; $row++) {
+      $range = sprintf('A%d:%s%d',$row,$colMax,$row);
+      $data = $ws->rangeToArray($range,null,false,false,false);
+      $this->processRow($results,$data[0]);
+    }
+
+    /*
+    $rows = $ws->toArray();
     foreach($rows as $row) {
       $this->processRow($results,$row);
     }
+    */
+
     $this->addOfficial();
 
     $results->officials = $this->officials;
