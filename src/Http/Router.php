@@ -1,4 +1,5 @@
 <?php
+namespace Cerad\Component\Http;
 
 use FastRoute\RouteCollector                as RouteCollector;
 use FastRoute\RouteParser\Std               as RouteParser;

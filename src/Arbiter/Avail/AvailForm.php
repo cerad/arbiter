@@ -39,13 +39,11 @@ class AvailForm
   }
   public function render()
   {
-    return <<<TYPEOTHER
-<form action="/app.php/avail" method="POST" enctype="multipart/form-data">
-<label>Spreadsheet
-  <input type="file" name="file" required/>
-</label><br/>
+    return <<<EOT
+<form action="/avail" method="POST" enctype="multipart/form-data">
+  <input type="file" name="file" required/><br/>
   <input type="submit" value="Generate" name="generate"/>
 </form>
-TYPEOTHER;
+EOT;
   }
 }

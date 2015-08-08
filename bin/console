@@ -1,14 +1,14 @@
 #!/usr/bin/env php
 <?php
 error_reporting(E_ALL);
-date_default_timezone_set('America/Chicago');
 
-use Pimple\Container as Dic;
+use Cerad\Component\Dic\Dic;
+
 use Symfony\Component\Console\Application;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-class App extends Application
+class AppConsole extends Application
 {
   private $dic;
 
@@ -18,7 +18,8 @@ class App extends Application
 
     $this->dic = $dic = new Dic();
 
-    new \Cerad\Component\Arbiter\Services($dic);
+    new \Cerad\Component\Arbiter\ArbiterServices($dic);
+    new \Cerad\Component\Arbiter\Avail\AvailServices($dic);
 
     foreach($dic->keys() as $serviceId) {
       if (substr($serviceId,-8) === '_command') {
@@ -28,6 +29,5 @@ class App extends Application
     return $commands;
   }
 }
-$app = new App();
-
+$app = new AppConsole();
 $app->run();
