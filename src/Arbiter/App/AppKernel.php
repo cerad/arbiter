@@ -1,15 +1,14 @@
 <?php
 namespace Cerad\Component\Arbiter\App;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface as RequestInterface;
-
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequestFactory as RequestFactory;
 use Zend\Diactoros\Response\SapiEmitter as ResponseEmitter;
 
 use Cerad\Component\Dic\Dic;
 use Cerad\Component\Http\Router;
+
+use Cerad\Component\Arbiter\ArbiterRoutes;
 use Cerad\Component\Arbiter\ArbiterServices;
 
 class AppKernel
@@ -30,7 +29,7 @@ class AppKernel
   protected function registerRoutes(Router $router)
   {
     $router->addRoute('arbiter_index_route','GET','/');
-    $router->addRoute('arbiter_avail_route',['GET','POST'],'/avail');
+    new ArbiterRoutes($router);
   }
   protected function registerServices(Dic $dic)
   {
@@ -51,12 +50,15 @@ class AppKernel
         $dic['app_main_menu']
       );
     };
-    $dic['app_main_menu'] = function() {
-      return new AppMainMenu();
+    $dic['app_main_menu'] = function() use ($dic) {
+      return new AppMainMenu(
+        $dic['router'] // Maybe
+      );
     };
     new ArbiterServices($dic);
 
-    /*
+    /* =========================================================
+     * Example of defining a callable service, not used but keep for now
     $dic['app_index_route'] = $dic->protect(function(RequestInterface $request, ResponseInterface $response)
     {
       ob_start();
