@@ -1,5 +1,5 @@
 <?php
-namespace Cerad\Component\App;
+namespace Cerad\Component\Arbiter\App;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
@@ -46,8 +46,13 @@ class AppKernel
     $dic['response_emitter'] = function() {
       return new ResponseEmitter();
     };
-    $dic['app_layout'] = function() {
-      return new AppLayout();
+    $dic['app_layout'] = function() use ($dic) {
+      return new AppLayout(
+        $dic['app_main_menu']
+      );
+    };
+    $dic['app_main_menu'] = function() {
+      return new AppMainMenu();
     };
     new ArbiterServices($dic);
 

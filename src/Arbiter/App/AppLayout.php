@@ -1,11 +1,16 @@
 <?php
-namespace Cerad\Component\App;
+namespace Cerad\Component\Arbiter\App;
 
 class AppLayout
 {
   // Blocks
   protected $content = '<h1>NO CONTENT</h1>';
+  protected $mainMenu;
 
+  public function __construct($mainMenu)
+  {
+    $this->mainMenu = $mainMenu;
+  }
   public function setContent($content)
   {
     $this->content = $content;
@@ -18,9 +23,8 @@ class AppLayout
   <title>Arbiter</title>
 </head>
 <body>
-  <div id="content">
-    {$this->content}
-  </div>
+  <div id="main-menu">{$this->mainMenu->render() }</div>
+  <div id="content">{$this->content}</div>
 </body>
 </html>
 EOT;
