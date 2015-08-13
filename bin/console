@@ -20,6 +20,7 @@ class AppConsole extends Application
 
     new \Cerad\Component\Arbiter\ArbiterServices($dic);
     new \Cerad\Component\Arbiter\Avail\AvailServices($dic);
+    new \Cerad\Component\Arbiter\Schedule\Import\ImportServices($dic);
 
     foreach($dic->keys() as $serviceId) {
       if (substr($serviceId,-8) === '_command') {
