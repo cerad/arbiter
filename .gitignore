@@ -7,3 +7,5 @@ bin/doctrine-dbal
 bin/phpunit
 bin/phpunit.bat
 composer.lock
+
+src/Arbiter/ArbiterParameters.php

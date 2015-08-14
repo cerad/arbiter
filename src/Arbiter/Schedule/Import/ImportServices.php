@@ -7,10 +7,14 @@ class ImportServices
 {
   public function __construct(Dic $dic)
   {
+    $dic['arbiter_schedule_importer_games_with_slots_xml'] = function() use ($dic) {
+      return new ImporterGamesWithSlotsXml(
+        $dic['arbiter_db_conn']
+      );
+    };
     $dic['arbiter_schedule_import_command'] = function() use ($dic) {
       return new ImportCommand(
-        //$dic['arbiter_avail_loader_excel'],
-        //$dic['arbiter_avail_reporter_excel']
+        $dic['arbiter_schedule_importer_games_with_slots_xml']
       );
     };
   }

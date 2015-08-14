@@ -18,8 +18,11 @@ class AppConsole extends Application
 
     $this->dic = $dic = new Dic();
 
-    new \Cerad\Component\Arbiter\ArbiterServices($dic);
+    new \Cerad\Component\Arbiter\ArbiterParameters($dic);
+    new \Cerad\Component\Arbiter\ArbiterServices  ($dic);
+
     new \Cerad\Component\Arbiter\Avail\AvailServices($dic);
+
     new \Cerad\Component\Arbiter\Schedule\Import\ImportServices($dic);
 
     foreach($dic->keys() as $serviceId) {

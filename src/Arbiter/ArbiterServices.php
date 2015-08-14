@@ -8,6 +8,9 @@ use Cerad\Component\Arbiter\Index\IndexContent;
 
 use Cerad\Component\Arbiter\Avail\AvailServices;
 
+use Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\DriverManager;
+
 class ArbiterServices
 {
   public function __construct(Dic $dic)
@@ -33,6 +36,17 @@ class ArbiterServices
       // On demand loading
       new AvailServices($dic);
       return $dic['arbiter_avail_action'];
+    };
+    // Database conntection
+    $dic['arbiter_db_conn'] = function() use($dic)
+    {
+      $config = new Configuration();
+      $connParams =
+        [
+          'url' => $dic['arbiter_db_url'],
+          'driverOptions' => [\PDO::ATTR_EMULATE_PREPARES => false],
+        ];
+      return DriverManager::getConnection($connParams, $config);
     };
   }
 }

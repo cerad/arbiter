@@ -33,42 +33,19 @@ class ImportCommand extends Command
   {
     $filename = $input->getArgument(('filename'));
 
-    echo sprintf("Import Schedule %s\n",$filename);
+    $params = [
+      'domain' => 'NASOA',
+      'season' => 'Fall2015',
+      'sport'  => 'Soccer',
+      'league' => null,
 
-    return;
-
-    $loaderResults = $this->loader->load($filename);
-
-    $data = [
-      'dates'     => $loaderResults->dates,
-      'officials' => $loaderResults->officials,
+      'filename' => $filename,
+      'basename' => basename($filename),
     ];
-    file_put_contents($filename . '.yml',Yaml::dump($data,10));
+    echo sprintf("Import Schedule %s\n",$params['filename']);
 
-    echo sprintf("Loaded Dates %s, Officials %d\n",count($loaderResults->dates),count($loaderResults->officials));
+    $results = $this->importer->import($params);
 
-    $reporter = $this->reporter;
-
-    $reporter->report($loaderResults->dates,$loaderResults->officials);
-
-    $out = $filename . '.' . $reporter->getFileExtension();
-    $reporter->save($out);
-
-    $response = new Response($out,200,[]);
-    return;
-
-    $stream = new Stream($out);
-    return;
-
-    $fp = fopen('php://temp','r+');
-    fputs($fp,$reporter->getContents());
-    rewind($fp);
-
-
-    $stream = new Stream($fp);
-    file_put_contents($filename . '.xlsx', $stream->getContents());
-
-    return;
-    file_put_contents($filename . '.xlsx', $reporter->getContents());
+    print_r($results);
   }
 }
