@@ -5,12 +5,13 @@ class ProjectModel
 {
   public $keys = [
     'id',
+    'key',
     'role',
     'name',
     'title',
 
     'domain',
-    'league',
+    'league', // Domain might be more descriptive here
     'season',
     'sport',
 

@@ -6,13 +6,16 @@ class ProjectGameModel
   public $keys = [
     'id',
 
-    'project_id',
+    'project', // Project relation
     'number',
 
-    'project_field_id',
+    'project_field',  // ProjectField relation
+    'project_level',  // This is the level for the game, different levels of teams might be assigned
+    'project_league', // The league/organization owning the game?
 
-    'start',
+    'start',   // Playing slot
     'finish',
+    'length',  // Playing time
 
     'status',
   ];

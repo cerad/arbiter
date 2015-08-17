@@ -5,8 +5,8 @@ class ProjectLevelModel
 {
   public $keys = [
     'id',
-    'level_id',
-    'project_id',
+    'level_key',   // Standard level relation?
+    'project', // Project Relation
     'name',
     'title',
 

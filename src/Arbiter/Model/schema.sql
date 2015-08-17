@@ -21,6 +21,7 @@ CREATE TABLE projects
 
   start  DATE,
   finish DATE,
+
   status VARCHAR( 20),
 
   PRIMARY KEY(id)
@@ -71,8 +72,9 @@ CREATE TABLE project_games
 
   start  DATETIME,
   finish DATETIME,
+  length INT,
 
-  note      VARCHAR(255),
+  note      VARCHAR(255), # Really should be a project_game_notes relation
   note_date DATE,
 
   status  VARCHAR(20),
