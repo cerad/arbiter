@@ -1,0 +1,31 @@
+{
+  "name": "arbiter",
+  "version": "1.0.0",
+  "description": "See the doc directory for more detailed information.",
+  "main": "app.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cerad/arbiter.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cerad/arbiter/issues"
+  },
+  "homepage": "https://github.com/cerad/arbiter#readme",
+  "devDependencies": {
+    "babel": "^5.8.21",
+    "babel-core": "^5.8.22",
+    "babel-loader": "^5.3.2",
+    "webpack": "^1.11.0"
+  },
+  "dependencies": {
+    "react": "^0.13.3"
+  }
+}
