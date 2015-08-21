@@ -8,4 +8,8 @@ class ImportResults
 
   public $message;
   public $countGamesTotal;
+
+  public $memory;
+  public $duration;
+
 }

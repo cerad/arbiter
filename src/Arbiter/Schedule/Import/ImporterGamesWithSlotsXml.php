@@ -3,6 +3,8 @@ namespace Cerad\Component\Arbiter\Schedule\Import;
 
 use Doctrine\DBAL\Connection;
 
+use Symfony\Component\Stopwatch\Stopwatch;
+
 class ImporterGamesWithSlotsXml
 {
   protected $dbConn;
@@ -13,9 +15,11 @@ class ImporterGamesWithSlotsXml
   protected $domain;
   protected $season;
 
-  protected $levels   = [];
-  protected $fields   = [];
-  protected $projects = [];
+  protected $teams     = [];
+  protected $levels    = [];
+  protected $fields    = [];
+  protected $projects  = [];
+  protected $officials = [];
 
   public function __construct(Connection $dbConn)
   {
@@ -24,26 +28,26 @@ class ImporterGamesWithSlotsXml
   /* =======================================================================
    * Process a project
    */
-  public function processProject($league)
+  public function processProject($domainSub)
   {
     // Cache
-    $key = "{$this->domain} {$this->sport} {$this->season} {$league}";
+    $key = "{$this->domain} {$this->sport} {$this->season} {$domainSub}";
     if (isset($this->projects[$key])) return $this->projects[$key];
 
     // Existing
-    $sql = 'SELECT id FROM projects WHERE domain = ? AND sport = ? AND season = ? AND league = ?;';
-    $stmt = $this->dbConn->executeQuery($sql,[$this->domain,$this->sport,$this->season,$league]);
+    $sql = 'SELECT id FROM projects WHERE domain = ? AND sport = ? AND season = ? AND domain_sub = ?;';
+    $stmt = $this->dbConn->executeQuery($sql,[$this->domain,$this->sport,$this->season,$domainSub]);
     $rows = $stmt->fetchAll();
     if (count($rows)) {
       return $this->projects[$key] = $rows[0]['id'];
     }
     // New
     $params = [
-      'domain' => $this->domain,
-      'sport'  => $this->sport,
-      'season' => $this->season,
-      'league' => $league,
-      'status' => 'Active',
+      'domain'     => $this->domain,
+      'domain_sub' => $domainSub,
+      'sport'      => $this->sport,
+      'season'     => $this->season,
+      'status'     => 'Active',
     ];
     $this->dbConn->insert('projects',$params);
     $projectId = $this->dbConn->lastInsertId();
@@ -111,14 +115,14 @@ class ImporterGamesWithSlotsXml
    * Process a game
    * Here is where we start looking for updates
    */
-  public function processGame($projectId,$fieldId,$number,$start,$finish,$status,$note,$noteDate)
+  public function processGame($projectId,$fieldId,$levelId,$number,$start,$finish,$status,$note,$noteDate)
   {
     $start  = str_replace('T',' ',$start );
     $finish = str_replace('T',' ',$finish);
 
-    if ($noteDate) {
-      die($noteDate);
-    }
+    if ($note     === '') $note     = null;
+    if ($noteDate === '') $noteDate = null;
+
     // Existing
     $sql = 'SELECT * FROM project_games WHERE project_id = ? AND number = ?;';
     $stmt = $this->dbConn->executeQuery($sql,[$projectId,$number]);
@@ -131,6 +135,7 @@ class ImporterGamesWithSlotsXml
       'project_id'       => $projectId,
       'number'           => $number,
       'project_field_id' => $fieldId,
+      'project_level_id' => $levelId,
       'status'           => $status,
       'start'            => $start,
       'finish'           => $finish,
@@ -142,21 +147,140 @@ class ImporterGamesWithSlotsXml
     return $params;
   }
   /* =======================================================================
+   * Process a project team
+   */
+  protected function processProjectTeam($projectId,$levelId,$name)
+  {
+    if (!$name) { return null; }
+
+    // Cache
+    $key = "{$projectId} {$levelId} {$name}";
+    if (isset($this->teams[$key])) return $this->teams[$key];
+
+    // Existing
+    $sql = 'SELECT id FROM project_teams WHERE project_id = ? AND project_level_id = ? AND name = ?;';
+    $stmt = $this->dbConn->executeQuery($sql,[$projectId,$levelId,$name]);
+    $rows = $stmt->fetchAll();
+    if (count($rows)) {
+      return $this->teams[$key] = $rows[0]['id'];
+    }
+    // New
+    $params = [
+      'project_id'       => $projectId,
+      'project_level_id' => $levelId,
+      'name'             => $name,
+    ];
+    $this->dbConn->insert('project_teams',$params);
+    return $this->teams[$key] = $this->dbConn->lastInsertId();
+  }
+  /* =======================================================================
+   * Process a project game team
+   *
+   */
+  protected function processProjectGameTeam($gameId,$slot,$teamId,$score)
+  {
+    // TODO: Verify a score of 0 comes across correctly
+    if ($score === '') $score = null;
+    $score = $score === null ? null : (integer)$score;
+
+    $sql = 'SELECT * FROM project_game_teams WHERE project_game_id = ? AND slot = ?;';
+    $stmt = $this->dbConn->executeQuery($sql,[$gameId,$slot]);
+    $rows = $stmt->fetchAll();
+    if (count($rows)) {
+      return $rows[0]; // Need to check for updates
+    }
+    // New
+    $params = [
+      'project_game_id'  => $gameId,
+      'project_team_id'  => $teamId,
+      'slot'             => $slot,
+      'score'            => $score,
+    ];
+    $this->dbConn->insert('project_game_teams',$params);
+    return $this->dbConn->lastInsertId();
+  }
+  /* =======================================================================
+   * Process a project official
+   */
+  protected function processProjectOfficial($projectId,$name,$email)
+  {
+    if (!$name) { return null; }
+
+    // Cache
+    $key = "{$projectId} {$name}";
+    if (isset($this->officials[$key])) return $this->officials[$key];
+
+    // Existing
+    $sql = 'SELECT id FROM project_officials WHERE project_id = ? AND name = ?;';
+    $stmt = $this->dbConn->executeQuery($sql,[$projectId,$name]);
+    $rows = $stmt->fetchAll();
+    if (count($rows)) {
+      return $this->officials[$key] = $rows[0]['id'];
+    }
+    // New
+    $params = [
+      'project_id' => $projectId,
+      'name'       => $name,
+      'email'      => $email,
+    ];
+    $this->dbConn->insert('project_officials',$params);
+    return $this->officials[$key] = $this->dbConn->lastInsertId();
+  }
+  /* =======================================================================
+   * Process a project game official
+   * This can be tricky as the number of officials can change from three man to dual
+   *  But worry more about that for high school
+   */
+  protected function processProjectGameOfficial($gameId,$slot,$officialId)
+  {
+    // No slot assigned to the game
+    if (substr($slot,0,2) === 'No') return null;
+
+    // TODO: Normalize slots
+
+    // Existing
+    $sql  = 'SELECT * FROM project_game_officials WHERE project_game_id = ? AND slot = ?;';
+    $stmt = $this->dbConn->executeQuery($sql,[$gameId,$slot]);
+    $rows = $stmt->fetchAll();
+    if (count($rows)) {
+      return $rows[0]['id']; // Need to check for updates
+    }
+    // New
+    $params = [
+      'project_game_id'     => $gameId,
+      'project_official_id' => $officialId,
+      'slot'                => $slot,
+    ];
+    $this->dbConn->insert('project_game_officials',$params);
+    return $this->dbConn->lastInsertId();
+  }
+  /* =======================================================================
    * Process a single row of data
    *
    */
   protected function processRow($row)
   {
     //print_r($row); die();
-    $projectId = $this->processProject($row['league']);
+    $projectId = $this->processProject($row['domain_sub']);
 
     $levelId = $this->processlevel($projectId,$row['level']);
     $fieldId = $this->processField($projectId,$row['site'],$row['siteSub']);
 
-    $game = $this->processGame($projectId,$fieldId,
+    $game = $this->processGame($projectId,$fieldId,$levelId,
       $row['number'],$row['start'],$row['finish'],$row['status'],
       $row['gameNote'],$row['gameNoteDate']
     );
+    $homeTeamId = $this->processProjectTeam($projectId,$levelId,$row['homeTeamName']);
+    $awayTeamId = $this->processProjectTeam($projectId,$levelId,$row['awayTeamName']);
+
+    $this->processProjectGameTeam($game['id'],'home',$homeTeamId,$row['homeTeamScore']);
+    $this->processProjectGameTeam($game['id'],'away',$awayTeamId,$row['awayTeamScore']);
+
+    for($slotIndex = 1; $slotIndex < 6; $slotIndex++) {
+      $officialId = $this->processProjectOfficial($projectId,$row['officialName' . $slotIndex], $row['officialEmail' . $slotIndex]);
+
+      $this->processProjectGameOfficial($game['id'],$row["officialSlot{$slotIndex}"],$officialId);
+    }
   }
   /* =======================================================================
    * Main Entry point
@@ -164,6 +288,9 @@ class ImporterGamesWithSlotsXml
    */
   public function import($params)
   {
+    $stopwatch = new Stopwatch();
+    $stopwatch->start('import');
+
     $this->results = $results = new ImportResults;
     $results->filename = $filename = $params['filename'];
     $results->basename = $params['basename'];
@@ -213,20 +340,24 @@ class ImporterGamesWithSlotsXml
       // On to the next one
       $reader->next('Detail');
     }
-
     $reader->close();
+
+    $event = $stopwatch->stop('import');
+    $results->memory   = $event->getMemory();
+    $results->duration = $event->getDuration();
+
+
     return $results;
   }
   /* ===========================================================
    * xmlReader does not have a simple getAttributes command
-   * Could iterate over it but a map is prettly as fast
    */
   protected $map = array
   (
     'number'        => 'GameID',
     'start'         => 'From_Date',    // 2013-03-08T16:30:00
     'finish'        => 'To_Date',
-    'league'        => 'Sport',        // AHSAA
+    'domain_sub'    => 'Sport',        // AHSAA
     'level'         => 'Level',        // MS-B
     'site'          => 'Site',
     'siteSub'       => 'Subsite',
@@ -239,11 +370,11 @@ class ImporterGamesWithSlotsXml
 
     'officialSlots' => 'Slots_Total',
 
-    'officialRole1' => 'First_Position',  // Referee
-    'officialRole2' => 'Second_Position', // AR1 (or possibly dual?
-    'officialRole3' => 'Third_Position',  // AR2
-    'officialRole4' => 'Fourth_Position', // 'No Fourth Position'
-    'officialRole5' => 'Fifth_Position',  // 'No Fifth Position'
+    'officialSlot1' => 'First_Position',  // Referee
+    'officialSlot2' => 'Second_Position', // AR1 (or possibly dual?
+    'officialSlot3' => 'Third_Position',  // AR2
+    'officialSlot4' => 'Fourth_Position', // 'No Fourth Position'
+    'officialSlot5' => 'Fifth_Position',  // 'No Fifth Position'
 
     'officialName1' => 'First_Official',
     'officialName2' => 'Second_Official',

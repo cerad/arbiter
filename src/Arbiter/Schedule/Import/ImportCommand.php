@@ -32,15 +32,17 @@ class ImportCommand extends Command
   protected function execute(InputInterface $input, OutputInterface $output)
   {
     $filename = $input->getArgument(('filename'));
+    $basename = basename($filename);
+
+    $parts = explode('-',$basename);
 
     $params = [
-      'domain' => 'NASOA',
-      'season' => 'Fall2015',
+      'domain' => $parts[0],
+      'season' => $parts[1],
       'sport'  => 'Soccer',
-      'league' => null,
 
       'filename' => $filename,
-      'basename' => basename($filename),
+      'basename' => $basename,
     ];
     echo sprintf("Import Schedule %s\n",$params['filename']);
 

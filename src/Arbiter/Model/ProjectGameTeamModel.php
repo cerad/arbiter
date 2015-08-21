@@ -3,7 +3,7 @@ namespace Cerad\Component\Arbiter\Model;
 
 class ProjectGameTeamModel implements \ArrayAccess
 {
-protected $id;
+  protected $id;
 
   protected $project_game; // Game relation
   protected $project_team; // Team relation
