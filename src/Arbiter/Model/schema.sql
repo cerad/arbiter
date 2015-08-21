@@ -83,27 +83,6 @@ CREATE TABLE project_games
   PRIMARY KEY(id)
 ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
-CREATE TABLE project_game_teams
-(
-  id INT AUTO_INCREMENT NOT NULL,
-
-  project_game_id INT NOT NULL,
-  project_team_id INT,
-
-  slot   VARCHAR(20),
-  source VARCHAR(99),
-
-  score         INT,
-  sportsmanship INT,
-  warnings      INT,
-  ejections     INT,
-
-  status  VARCHAR(20),
-
-  PRIMARY KEY(id),
-  UNIQUE INDEX project_game_teams_game_slot_index(project_game_id,slot)
-) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
-
 CREATE TABLE project_teams
 (
   id INT AUTO_INCREMENT NOT NULL,
@@ -118,7 +97,12 @@ CREATE TABLE project_teams
   status  VARCHAR(20),
 
   PRIMARY KEY(id),
+
+  FOREIGN KEY (project_id)       REFERENCES projects       (id),
+  FOREIGN KEY (project_level_id) REFERENCES project_levels (id),
+
   UNIQUE INDEX project_teams_project_level_name_index(project_id,project_level_id,name)
+
 ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
 CREATE TABLE project_officials
@@ -137,7 +121,37 @@ CREATE TABLE project_officials
   status  VARCHAR(20),
 
   PRIMARY KEY(id),
+
+  FOREIGN KEY (project_id) REFERENCES projects (id),
+
   UNIQUE INDEX project_officials_project_name_index(project_id,name)
+
+) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
+
+CREATE TABLE project_game_teams
+(
+  id INT AUTO_INCREMENT NOT NULL,
+
+  project_game_id INT NOT NULL,
+  project_team_id INT,
+
+  slot   VARCHAR(20),
+  source VARCHAR(99),
+
+  score         INT,
+  sportsmanship INT,
+  warnings      INT,
+  ejections     INT,
+
+  status  VARCHAR(20),
+
+  PRIMARY KEY(id),
+
+  FOREIGN KEY (project_game_id) REFERENCES project_games (id) ON DELETE CASCADE,
+  FOREIGN KEY (project_team_id) REFERENCES project_teams (id),
+
+  UNIQUE INDEX project_game_teams_game_slot_index(project_game_id,slot)
+
 ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
 CREATE TABLE project_game_officials
@@ -154,7 +168,13 @@ CREATE TABLE project_game_officials
   assign_state VARCHAR(20),
 
   PRIMARY KEY(id),
+
+  FOREIGN KEY (project_game_id    ) REFERENCES project_games     (id) ON DELETE CASCADE,
+  FOREIGN KEY (project_official_id) REFERENCES project_officials (id),
+  FOREIGN KEY (project_team_id    ) REFERENCES project_teams     (id),
+
   UNIQUE INDEX project_game_officials_game_slot_index(project_game_id,slot)
+
 ) DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE = InnoDB;
 
 

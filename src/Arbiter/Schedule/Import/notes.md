@@ -18,3 +18,24 @@
     [countGamesTotal] => 1503
     [memory] => 2883584
     [duration] => 5654
+    
+### Slots
+
+Should slots be a name, a key or an index?
+
+If they are indexes then they should be globally unique and sortable.
+That kind of overloads the semantics but might be worth it in this case.
+
+For teams, there are typically two teams, home and away so the name work well.
+But there are times when three or more teams are involved (jamborees).
+Smaill number if indexes.  Always want to sort by home then away.
+So any of the approaches would work.
+
+For soccer officials, there will be one official in charge.
+
+Referee - dsc
+Referee - solo
+
+Referee - dual here the responsibilities shift a bit but still in charge
+Referee 1 - could be specific to duals
+Referee 2 - second referee on a dual
