@@ -19,6 +19,19 @@
     [memory] => 2883584
     [duration] => 5654
     
+    giles
+    [basename] => NASOA-Fall2015-20150814-GamesWithSlots.xml
+    [message] => 
+    [countGamesTotal] => 214
+    [memory] => 2621440
+    [duration] => 38.559    
+    
+    [basename] => ALYS-Fall2015-20150814-GamesWithSlots.xml
+    [message] => 
+    [countGamesTotal] => 1503
+    [memory] => 2883584
+    [duration] => 348.618    
+    
 ### Slots
 
 Should slots be a name, a key or an index?
@@ -28,7 +41,7 @@ That kind of overloads the semantics but might be worth it in this case.
 
 For teams, there are typically two teams, home and away so the name work well.
 But there are times when three or more teams are involved (jamborees).
-Smaill number if indexes.  Always want to sort by home then away.
+Small number of indexes.  Always want to sort by home then away.
 So any of the approaches would work.
 
 For soccer officials, there will be one official in charge.
