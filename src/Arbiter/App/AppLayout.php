@@ -25,10 +25,6 @@ class AppLayout
 <body>
   <div id="main-menu">{$this->mainMenu->render() }</div>
   <div id="content">{$this->content}</div>
-  <div id="hello"></div>
-  <div id="scripting">
-    <script type="text/javascript" src="assets/bundle.js"></script>
-  </div>
 </body>
 </html>
 EOT;

@@ -37,6 +37,13 @@ class ArbiterServices
       new AvailServices($dic);
       return $dic['arbiter_avail_action'];
     };
+    // Schedule
+    $dic['arbiter_schedule_show_route'] = function() use($dic)
+    {
+      // On demand loading
+      new Schedule\ScheduleServices($dic);
+      return $dic['arbiter_schedule_show_action'];
+    };
     // Database conntection
     $dic['arbiter_db_conn'] = function() use($dic)
     {
