@@ -3,12 +3,8 @@ namespace Cerad\Component\Arbiter;
 
 use Cerad\Component\Dic\Dic as Dic;
 
-use Cerad\Component\Arbiter\Index\IndexAction;
-use Cerad\Component\Arbiter\Index\IndexContent;
-
-use Cerad\Component\Arbiter\Avail\AvailServices;
-
-use Doctrine\DBAL\Configuration;
+use /** @noinspection PhpInternalEntityUsedInspection */
+  Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 
 class ArbiterServices
@@ -17,12 +13,12 @@ class ArbiterServices
   {
     // Index
     $dic['arbiter_index_content'] = function() use ($dic) {
-      return new IndexContent(
+      return new Index\IndexContent(
         $dic['app_layout']
       );
     };
     $dic['arbiter_index_action'] = function() use ($dic) {
-      return new IndexAction(
+      return new Index\IndexAction(
         $dic['arbiter_index_content']
       );
     };
@@ -34,7 +30,7 @@ class ArbiterServices
     $dic['arbiter_avail_route'] = function() use($dic)
     {
       // On demand loading
-      new AvailServices($dic);
+      new Avail\AvailServices($dic);
       return $dic['arbiter_avail_action'];
     };
     // Schedule
@@ -44,9 +40,10 @@ class ArbiterServices
       new Schedule\ScheduleServices($dic);
       return $dic['arbiter_schedule_show_action'];
     };
-    // Database conntection
+    // Database connection
     $dic['arbiter_db_conn'] = function() use($dic)
     {
+      /** @noinspection PhpInternalEntityUsedInspection */
       $config = new Configuration();
       $connParams =
         [
