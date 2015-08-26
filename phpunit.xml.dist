@@ -15,6 +15,7 @@
 
     <testsuites>
         <testsuite name="Test Suite">
+            <directory>src/Security/Tests</directory>
             <directory>src/Arbiter/Tests</directory>
         </testsuite>
     </testsuites>
