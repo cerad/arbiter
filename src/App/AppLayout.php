@@ -1,5 +1,5 @@
 <?php
-namespace Cerad\Component\Arbiter\App;
+namespace Cerad\App;
 
 class AppLayout
 {

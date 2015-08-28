@@ -1,5 +1,5 @@
 <?php
-namespace Cerad\Component\Arbiter\App;
+namespace Cerad\App;
 
 use Zend\Diactoros\Response;
 use Zend\Diactoros\ServerRequestFactory as RequestFactory;
@@ -19,13 +19,19 @@ use Cerad\Component\Arbiter\ArbiterServices;
 use Cerad\Security\SecurityRoutes;
 use Cerad\Security\SecurityServices;
 
+use Cerad\Tournament\TournamentBundle;
+
 class AppKernel
 {
   protected $dic;
 
+  protected $tournamentBundle;
+
   public function __construct()
   {
     $this->dic = $dic = $this->createDependencyInjectionContainer();
+
+    $this->tournamentBundle = new TournamentBundle();
 
     $this->registerServices($dic);
     $this->registerRoutes  ($dic->get('router'));
@@ -40,6 +46,8 @@ class AppKernel
 
     new SecurityRoutes($router);
     new ArbiterRoutes ($router);
+
+    $this->tournamentBundle->registerRoutes($router);
   }
   protected function registerServices(Dic $dic)
   {
@@ -70,15 +78,7 @@ class AppKernel
     new SecurityServices($dic);
     new ArbiterServices ($dic);
 
-    /* =========================================================
-     * Example of defining a callable service, not used but keep for now
-    $dic['app_index_route'] = $dic->protect(function(RequestInterface $request, ResponseInterface $response)
-    {
-      ob_start();
-      require 'views/index.html.php';
-      $response->getBody()->write(ob_get_clean());
-      return [$request,$response];
-    });*/
+    $this->tournamentBundle->registerServices($dic);
   }
   public function run()
   {
