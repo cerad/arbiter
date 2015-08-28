@@ -27,7 +27,9 @@ class SecurityServices
       return DriverManager::getConnection($connParams, $config);
     };
 
-    // Login
+    /** ===================================================
+     * Login/Logout
+     */
     $dic['security_login_content'] = function() use ($dic) {
       return new Login\LoginContent(
         $dic['app_layout']
@@ -49,6 +51,15 @@ class SecurityServices
     {
       return $dic['security_login_action'];
     };
+    $dic['security_logout_action'] = function() use ($dic) {
+      return new Logout\LogoutAction(
+        $dic['security_access_token_storage']
+      );
+    };
+    $dic['security_logout_route'] = function() use($dic)
+    {
+      return $dic['security_logout_action'];
+    };
     /* ==================================================
      * Access token stuff
      */
@@ -58,12 +69,12 @@ class SecurityServices
     $dic['security_password_encoder'] = function() {
       return new PasswordEncoder();
     };
-    $dic['access_token_storage'] = function() {
-      return new \Cerad\Security\AccessTokenStorage();
+    $dic['security_access_token_storage'] = function() {
+      return new AccessTokenStorage();
     };
     $dic['access_token_middleware'] = function() use ($dic){
       return new AccessTokenMiddleware(
-        $dic['access_token_storage'],
+        $dic['security_access_token_storage'],
         $dic['jwt_coder']
       );
     };

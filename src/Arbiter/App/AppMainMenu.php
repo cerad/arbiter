@@ -1,8 +1,24 @@
 <?php
 namespace Cerad\Component\Arbiter\App;
 
+use Cerad\Security\AccessTokenStorage;
+
 class AppMainMenu
 {
+  protected $accessToken;
+
+  public function __construct(AccessTokenStorage $accessTokenStorage)
+  {
+    $this->accessToken = $accessTokenStorage->get();
+  }
+  protected function renderAccessToken()
+  {
+    if (!$this->accessToken) return '<a href="/login">Login</a>';
+
+    return <<<EOT
+<a href="/logout">Logout {$this->accessToken['name']}</a>
+EOT;
+  }
   public function render()
   {
     return <<<EOT
@@ -15,6 +31,7 @@ class AppMainMenu
   <li><a href="/"        >Home</a></li>
   <li><a href="/schedule">Schedule</a></li>
   <li><a href="/avail"   >Availability</a></li>
+  <li>{$this->renderAccessToken()}</li>
 </ul>
 EOT;
   }

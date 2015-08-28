@@ -8,5 +8,7 @@ class SecurityRoutes
   public function __construct(Router $router)
   {
     $router->addRoute('security_login_route',['GET','POST'],'/login');
+
+    $router->addRoute('security_logout_route',['GET'],'/logout');
   }
 }

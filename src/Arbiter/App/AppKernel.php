@@ -64,7 +64,7 @@ class AppKernel
     };
     $dic['app_main_menu'] = function() use ($dic) {
       return new AppMainMenu(
-        $dic['router'] // Maybe
+        $dic['security_access_token_storage']
       );
     };
     new SecurityServices($dic);
