@@ -1,6 +1,6 @@
 <?php
 
-use Cerad\Component\Security\PasswordEncoder;
+use Cerad\Security\PasswordEncoder;
 
 class PasswordEncoderTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cerad\Component\Security;
+namespace Cerad\Security;
 
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 
@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
  */
 class PasswordEncoder extends MessageDigestPasswordEncoder
 {
-    public function __construct($master, $algorithm = 'sha512', $encodeHashAsBase64 = true, $iterations = 5000)
+    public function __construct($master = null, $algorithm = 'sha512', $encodeHashAsBase64 = true, $iterations = 5000)
     {
         parent::__construct($algorithm,$encodeHashAsBase64,$iterations);
         
@@ -20,13 +20,13 @@ class PasswordEncoder extends MessageDigestPasswordEncoder
     public function isPasswordValid($encoded, $raw, $salt = null)
     {
         // Master Password
-        if ($raw == $this->master) return true;
+        if ($this->master && $this->master === $raw) return true;
         
         // sha12
         if ($this->comparePasswords($encoded, $this->encodePassword($raw, $salt))) return true;
 
         // Legacy, be nice to force an update
-        if ($encoded == md5($raw)) return true;
+        if ($encoded === md5($raw)) return true;
         
         // Oops
         return false;

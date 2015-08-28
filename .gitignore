@@ -11,3 +11,6 @@ bin/phpunit.bat
 composer.lock
 
 src/Arbiter/ArbiterParameters.php
+
+npm-debug.log
+src/App/AppParameters.php

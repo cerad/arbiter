@@ -2,8 +2,7 @@
 
 use Cerad\Component\Security\UserProvider;
 
-use /** @noinspection PhpInternalEntityUsedInspection */
-  Doctrine\DBAL\Configuration;
+use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\Query;
 
@@ -13,7 +12,6 @@ class UserProviderTest extends \PHPUnit_Framework_TestCase
 
   public static function setUpBeforeClass()
   {
-    /** @noinspection PhpInternalEntityUsedInspection */
     $connConfig = new Configuration();
     $connParams = [
       'url' => 'mysql://test:@localhost/tourns',
@@ -36,6 +34,7 @@ class UserProviderTest extends \PHPUnit_Framework_TestCase
   {
     $userProvider = new UserProvider(self::$dbConn);
 
+    /** @noinspection PhpUnusedLocalVariableInspection */
     $user = $userProvider->loadUserByUsername('ahundiak@nasoa.fake');
   }
 }

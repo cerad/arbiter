@@ -4,7 +4,7 @@ namespace Cerad\Component\Arbiter;
 use Cerad\Component\Dic\Dic as Dic;
 
 use /** @noinspection PhpInternalEntityUsedInspection */
-  Doctrine\DBAL\Configuration;
+    Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 
 class ArbiterServices
